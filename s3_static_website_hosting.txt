@@ -1,0 +1,98 @@
+task: Deploy a Static Website on S3 using Terraform
+
+>>PROCESS TO CONNECT AWS WITH TERRAFORM
+STEP 1:Download, Intall and configure aws CLI
+	>>to make sure aws cli is installed or not we will run one commmand on command prompt
+	#aws --version
+step 2:Next thing we need to configure our user profile
+	>>so we need to run the following commands
+	#aws configure
+	#aws Access Key : ********
+	#aws secret key : ********
+	#default region name :
+	#default output format: Json
+after all this steps user profile is setup now.
+after this we can run one basic command to check weather its linked or not
+	# aws s3 ls (basically it will list the bucket present in the aws account)
+
+now we will write the code in visual studio,
+
+main.tf
+
+#provider
+#aws_s3_bucket
+#aws_s3_bucket_public_access_block
+#aws_s3_bucket_ownership_controls
+#aws_s3_bucket_acl
+#aws_s3_object
+#aws_s3_bucket_website_configuration
+
+provider "aws" {
+  region = "us-east-1"
+}
+
+
+resource "aws_s3_bucket" "s3" {
+  bucket = "909-bucks"
+
+}
+
+
+resource "aws_s3_bucket_public_access_block" "s3_block_public" {
+  bucket = aws_s3_bucket.s3.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+resource "aws_s3_bucket_ownership_controls" "s3-ownership" {
+  bucket = aws_s3_bucket.s3.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_s3_bucket_acl" "s3-acl" {
+  depends_on = [aws_s3_bucket_ownership_controls.example]
+
+  bucket = aws_s3_bucket.s3.id
+  acl    = "private_read"
+}
+
+resource "aws_s3_bucket_object" "s3-object" {
+  bucket = aws_s3_bucket_s3.id
+  key    = "index.html"
+  source = "index.html"
+  content_type "text/html"
+  acl +"public_read"
+}
+
+resource "aws_s3_bucket_website_configuration" "s3-website" {
+  bucket = aws_s3_bucket.s3.id
+
+  index_document {
+    suffix = "index.html"
+  }
+
+ 
+  }
+
+
+index.html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Good Morning</title>
+</head>
+<body>
+    <h1>Good Morning</h1>
+</body>
+</html>
+
+
